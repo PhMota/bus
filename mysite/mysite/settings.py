@@ -25,12 +25,13 @@ SECRET_KEY = '-g)9^!hqx7e_sfof8xdu1yt7#tneh3(z@5(!(^@%l)pk29-n0j'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [u'152.84.100.17',u'127.0.0.1',u'localhost']
 
 
 # Application definition
 
 INSTALLED_APPS = (
+    #'djangosecure',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -40,6 +41,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    #'djangosecure.middleware.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -49,6 +51,8 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 )
+
+#SECURE_SSL_REDIRECT = True
 
 ROOT_URLCONF = 'mysite.urls'
 
