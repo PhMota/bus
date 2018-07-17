@@ -1,0 +1,94 @@
+<html>
+    <head>
+        <title>Google Maps API Example Hack</title>
+        <style>
+                .terms-of-use-link {
+                        display: none;
+                }
+
+                #myMapContainerId div span {
+                        display: none;
+                }
+        </style>
+        <script type="text/javascript">
+            window.alert = window.alert;
+            window.alert = function() {return;};
+
+            window.setupMap = function() {
+                    window.map = new GMap2(document.getElementById("myMapContainerId"));
+                    map.setCenter(new GLatLng(-22.9538984,-43.1736357), 13);
+                    map.addControl(new GLargeMapControl3D());
+                    map.addControl(new GMapTypeControl());
+            };
+
+            window.unclutter = function() {
+                    var executed = false;
+                    var images = document.getElementsByTagName('img');
+                    for (var index = 0; index < images.length; index++) {
+                            var node = images[index];
+                            if (node.src && node.src.indexOf("mapfiles/poweredby.png") > 0) {
+                                    node.style.display = 'none';
+                                    executed = true;
+                            }
+                    }
+
+                    if (! executed) {
+                            setTimeout(window.unclutter, 250);
+                    }
+            };
+
+            window.totalMarkers = 0;
+            window.randomMarkers = function() {
+                    // Add 10 markers to the map at random locations
+                    var bounds = map.getBounds();
+                    var southWest = bounds.getSouthWest();
+                    var northEast = bounds.getNorthEast();
+                    var lngSpan = northEast.lng() - southWest.lng();
+                    var latSpan = northEast.lat() - southWest.lat();
+                    for (var i = 0; i < 10; i++) {
+                            totalMarkers++;
+                            var latlng = new GLatLng(southWest.lat() + latSpan * Math.random(),
+                                    southWest.lng() + lngSpan * Math.random());
+                            var marker = new GMarker(latlng);
+                            var markerText = "Marker #" + totalMarkers;
+                            GEvent.addListener(marker, "click", markerClickHandler(marker, markerText));
+                            map.addOverlay(marker);
+                    }
+            };
+
+            window.markerClickHandler = function(marker, text) {
+                    return function() {
+                            marker.openInfoWindowHtml(text);
+                    };
+            };
+
+            window.getLocation = function() {
+                var x = document.getElementById("demo");
+                if (navigator.geolocation) {
+//                     x.innerHTML = "here";
+                    x.innerHTML = navigator.geolocation.getCurrentPosition(showPosition);
+//                     x.innerHTML = navigator.geolocation.watchPosition(showPosition);
+                } else { 
+                    x.innerHTML = "Geolocation is not supported by this browser.";
+                }
+            };
+
+            window.showPosition = function(position) {
+                var x = document.getElementById("demo");
+                x.innerHTML = "Latitude: " + position.coords.latitude + 
+                "<br>Longitude: " + position.coords.longitude;
+            };
+            
+            window.onload = function() {setupMap(); unclutter(); getLocation()};
+        </script>
+        <script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=true" type="text/javascript"></script>
+    </head>
+    <body>
+        Note the lack of branding/logos, terms of use links, and copyright footer text in the map below.<br />
+        Also note the lack of any Google Maps API key in the document source.<br />
+        And the lack of any annoying <a href="#" onclick="_alert('I can still create alerts, but the Google Map can\'t.'); return false;">alert</a> popups complaining about the API key.<br >
+        The map continues to function as normal:  <a href="#" onclick="randomMarkers(); return false;">add 10 random markers</a>  <br /><br />
+        <div id="myMapContainerId" style="width: 600px; height: 400px;"></div>
+        location: <p id="demo">a</p>
+    </body>
+</html>
