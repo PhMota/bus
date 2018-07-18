@@ -1,11 +1,13 @@
 <html>
     <head>
+        <meta charset="utf-8">
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.2/dist/leaflet.css"
             integrity="sha512-Rksm5RenBEKSKFjgI3a41vrjkw4EVPlJ3+OiI65vTjIdo9brlAacEuKOiQ5OFh7cOI1bkDwLqdLw3Zg0cRJAAQ=="
             crossorigin=""/>
         <script src="https://unpkg.com/leaflet@1.3.2/dist/leaflet.js"
             integrity="sha512-2fA79E27MOeBgLjmBrtAgM/20clVSV8vJERaW/EcnnWCVGwQRazzKtQS1kIusCZv1PtaQxosDZZ0F1Oastl55w=="
             crossorigin=""></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
         <title>RioBus</title>
         <style>
                 .terms-of-use-link {
@@ -15,40 +17,11 @@
                 #mapid { height: 50%; }
         </style>
         <script type="text/javascript">
-            window.alert = window.alert;
-            window.alert = function() {return;};
             var map;
-
-            window.totalMarkers = 0;
-            window.randomMarkers = function() {
-                    // Add 10 markers to the map at random locations
-                    var bounds = map.getBounds();
-                    var southWest = bounds.getSouthWest();
-                    var northEast = bounds.getNorthEast();
-                    var lngSpan = northEast.lng() - southWest.lng();
-                    var latSpan = northEast.lat() - southWest.lat();
-                    for (var i = 0; i < 10; i++) {
-                            totalMarkers++;
-                            var latlng = new GLatLng(southWest.lat() + latSpan * Math.random(),
-                                    southWest.lng() + lngSpan * Math.random());
-                            var marker = new GMarker(latlng);
-                            var markerText = "Marker #" + totalMarkers;
-                            GEvent.addListener(marker, "click", markerClickHandler(marker, markerText));
-                            map.addOverlay(marker);
-                    }
-            };
-
-            window.markerClickHandler = function(marker, text) {
-                    return function() {
-                            marker.openInfoWindowHtml(text);
-                    };
-            };
 
             window.getLocation = function() {
                 var x = document.getElementById("demo");
                 if (navigator.geolocation) {
-//                     x.innerHTML = "here";
-//                     x.innerHTML = navigator.geolocation.getCurrentPosition(showPosition);
                     navigator.geolocation.watchPosition(showPosition);
                 } else { 
                     x.innerHTML = "Geolocation is not supported by this browser.";
@@ -61,8 +34,15 @@
                 "<br>Longitude: " + position.coords.longitude;
                 var lat = parseFloat(position.coords.latitude);
                 var lon = parseFloat(position.coords.longitude);
-                L.map('mapid').setView([parseFloat(position.coords.latitude), float(position.coords.longitude)], 18);
                 L.marker([lat, lon]).addTo(map);
+                $.ajax({
+                        url: '{% url "printAjax" %}',
+                        data: { u'gps': [lat, lon] },
+                        dataType: 'json',
+                        success: function (data) {
+                            x.innerHTML += "success" + data.success;
+                        }
+                    });                
             };
             
             window.onload = function() {
@@ -70,17 +50,15 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }).addTo(map);
-//                 L.marker([-22.9539, -43.1736]).addTo(map);
                 getLocation()
                 };
         </script>
     </head>
     <body>
-        Note the lack of branding/logos, terms of use links, and copyright footer text in the map below.<br />
-        Also note the lack of any Google Maps API key in the document source.<br />
+
         And the lack of any annoying <a href="#" onclick="_alert('I can still create alerts, but the Google Map can\'t.'); return false;">alert</a> popups complaining about the API key.<br >
         The map continues to function as normal:  <a href="#" onclick="randomMarkers(); return false;">add 10 random markers</a>  <br /><br />
         <div id="mapid"></div>
-        location: <p id="demo">a</p>
+        location: <p id="demo">loading GPS...</p>
     </body>
 </html>
